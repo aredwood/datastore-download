@@ -1,0 +1,22 @@
+{
+  "name": "datastore-download",
+  "version": "0.1.0",
+  "description": "downloads all data from datastore ",
+  "main": "./dist/index.js",
+  "repository": "https://github.com/aredwood/datastore-download.git",
+  "author": "Alex Redwood <hello@alexredwood.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "nodemonConfig":{
+    "ignore":["exports"]
+  },
+  "private": true,
+  "dependencies": {
+    "@google-cloud/datastore": "^4.3.0",
+    "@types/async": "^3.0.2",
+    "async": "^3.1.0",
+    "typescript": "^3.6.3"
+  }
+}

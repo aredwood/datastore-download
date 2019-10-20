@@ -9,6 +9,9 @@ interface ISpace{
 const getSpaces = async () => {
     const namespaces = await datastore.getNamespaces(datastore.instance);
     let operations : Promise<any>[] = [];
+
+    // push default namespace
+
     namespaces.forEach(namespace => {
         const space = new Promise(async (res,rej) => {
             const kinds = await datastore.getKindsInNamespace(datastore.instance,namespace);
@@ -47,12 +50,20 @@ const downloadDatastore = async (spaces:ISpace[]) => {
 
     const downloadSpaceQueue = queue((space:ISpace,cb: () => void) => {
 
+        
+
         let counter = 0;
         fs.mkdirSync(`exports/${space.namespace}/${space.kind}`,{
             recursive:true
         });
 
-        const query = datastore.instance.createQuery(space.namespace,space.kind);
+        if(space.namespace === "[default]"){
+            var query = datastore.instance.createQuery(space.kind);
+        }
+        else{
+            var query = datastore.instance.createQuery(space.namespace,space.kind);
+        }
+
 
         const stream = datastore.instance.runQueryStream(query);
 
@@ -76,5 +87,13 @@ const downloadDatastore = async (spaces:ISpace[]) => {
 
 (async () => {
     const spaces = await getSpaces();
-    downloadDatastore(spaces);
+
+    const onlyDefault = spaces.filter(space => {
+        return space.namespace === "[default]"
+    });
+
+    // console.log(onlyDefault);
+
+
+    downloadDatastore(onlyDefault);
 })();

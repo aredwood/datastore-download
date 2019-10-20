@@ -10,12 +10,15 @@ const getNamespaces = async (datastore:Datastore) : Promise<string[]> => {
     
     const [queryResult] = await datastore.runQuery(namespaceQuery);
 
-    const namespaces = queryResult.map(result => {
+    let namespaces = queryResult.map(result => {
         const key = result[datastore.KEY];
         return key.name
     }).filter(name => {
         return (typeof name !== "undefined");
-    })
+    });
+
+    // add default namesapce
+    namespaces.push("[default]")
 
     return namespaces;
 }
@@ -25,8 +28,8 @@ const getId = (object:any) => {
     return (typeof key.id === 'undefined') ? key.name : key.id;
 }
 
-const getKindsInNamespace = async (datastore:Datastore,namespace:string) : Promise<string[]> => {
-    const namespaceQuery = datastore.createQuery(namespace,"__kind__");
+const getKindsInNamespace = async (datastore:Datastore,namespace:string = "[default]") : Promise<string[]> => {
+    const namespaceQuery = (namespace === "[default]") ? datastore.createQuery("__kind__") : datastore.createQuery(namespace,"__kind__")
     
     const [queryResult] = await datastore.runQuery(namespaceQuery);
 

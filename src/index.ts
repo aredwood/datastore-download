@@ -64,7 +64,7 @@ const downloadDatastore = async (spaces: ISpace[]) => {
         const stream = datastore.instance.runQueryStream(query);
 
         stream.on("data", (result) => {
-            const id = datastore.getId(result);
+            const id = datastore.getId(datastore.instance, result);
             fs.writeFileSync(`exports/${space.namespace}/${space.kind}/${id}.json`, JSON.stringify(result, null, 2), {
                 encoding: "utf8",
             });

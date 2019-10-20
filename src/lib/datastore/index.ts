@@ -21,8 +21,8 @@ const getNamespaces = async (datastore: Datastore): Promise<string[]> => {
     return namespaces;
 };
 
-const getId = (object: any) => {
-    const key = object[datastore.KEY];
+const getId = (instance: Datastore, object: any) => {
+    const key = object[instance.KEY];
     return (typeof key.id === "undefined") ? key.name : key.id;
 };
 

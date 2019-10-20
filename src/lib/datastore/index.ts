@@ -1,63 +1,63 @@
 import {Datastore, DatastoreOptions} from "@google-cloud/datastore";
 
+const datastoreInstance = new Datastore();
 
-const datastore = new Datastore();
+const getNamespaces = async (datastore: Datastore): Promise<string[]> => {
 
-
-const getNamespaces = async (datastore:Datastore) : Promise<string[]> => {
-    
     const namespaceQuery = datastore.createQuery("__namespace__");
-    
+
     const [queryResult] = await datastore.runQuery(namespaceQuery);
 
-    let namespaces = queryResult.map(result => {
+    const namespaces = queryResult.map((result) => {
         const key = result[datastore.KEY];
-        return key.name
-    }).filter(name => {
+        return key.name;
+    }).filter((name) => {
         return (typeof name !== "undefined");
     });
 
     // add default namesapce
-    namespaces.push("[default]")
+    namespaces.push("[default]");
 
     return namespaces;
-}
+};
 
-const getId = (object:any) => {
+const getId = (object: any) => {
     const key = object[datastore.KEY];
-    return (typeof key.id === 'undefined') ? key.name : key.id;
-}
+    return (typeof key.id === "undefined") ? key.name : key.id;
+};
 
-const getKindsInNamespace = async (datastore:Datastore,namespace:string = "[default]") : Promise<string[]> => {
-    const namespaceQuery = (namespace === "[default]") ? datastore.createQuery("__kind__") : datastore.createQuery(namespace,"__kind__")
-    
+const getKindsInNamespace = async (datastore: Datastore, namespace: string = "[default]"): Promise<string[]> => {
+    const namespaceQuery = (namespace === "[default]") ?
+        datastore.createQuery("__kind__") :
+        datastore.createQuery(namespace, "__kind__");
+
     const [queryResult] = await datastore.runQuery(namespaceQuery);
 
-    const kinds = queryResult.map(kind => {
+    const kinds = queryResult.map((kind) => {
         const key = kind[datastore.KEY];
         return key.name;
-    }).filter(name => {
-        return name.substr(0,2) !== "__"
-    })
+    }).filter((name) => {
+        return name.substr(0, 2) !== "__";
+    });
 
     return kinds;
+};
+interface IDatastoreTree {
+    [key: string]: string[];
 }
-interface IDatastoreTree{
-    [key:string]:string[]
-}
-const getDatastoreTree = async (datastore:Datastore) : Promise<IDatastoreTree> => {
+const getDatastoreTree = async (datastore: Datastore): Promise<IDatastoreTree> => {
     const namespaces = await getNamespaces(datastore);
 
-    let operations : any = [];
- 
-    namespaces.forEach(namespace => {
-        const kindMap = new Promise(async (res,rej) => {
-            const kinds = await getKindsInNamespace(datastore,namespace);
-            let result : {
-                [key:string]:string[]
+    const operations: any = [];
+
+    namespaces.forEach((namespace) => {
+        const kindMap = new Promise(async (res, rej) => {
+            const kinds = await getKindsInNamespace(datastore, namespace);
+            const result: {
+                [key: string]: string[],
             } = {};
             result[namespace] = kinds;
-            res(result)
+            res(result);
         });
 
         operations.push(kindMap);
@@ -65,27 +65,24 @@ const getDatastoreTree = async (datastore:Datastore) : Promise<IDatastoreTree> =
 
     const namespaceMap = await Promise.all(operations);
 
-    let tree = {}
+    const tree = {};
 
     namespaceMap.forEach((namespace) => {
-        //@ts-ignore
+        // @ts-ignore
         const name = Object.keys(namespace)[0];
 
-        //@ts-ignore
+        // @ts-ignore
         tree[name] = namespace[name];
-    })
+    });
 
     return tree;
 
-
-}
-
+};
 
 export default {
-    instance:datastore,
-    getNamespaces,
-    getKindsInNamespace,
     getDatastoreTree,
-    getId
-}
-
+    getId,
+    getKindsInNamespace,
+    getNamespaces,
+    instance: datastoreInstance,
+};

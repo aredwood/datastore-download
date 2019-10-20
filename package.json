@@ -7,16 +7,20 @@
   "author": "Alex Redwood <hello@alexredwood.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "lint":"tslint --project ."
   },
-  "nodemonConfig":{
-    "ignore":["exports"]
+  "nodemonConfig": {
+    "ignore": [
+      "exports"
+    ]
   },
   "private": true,
   "dependencies": {
     "@google-cloud/datastore": "^4.3.0",
     "@types/async": "^3.0.2",
     "async": "^3.1.0",
+    "tslint": "^5.20.0",
     "typescript": "^3.6.3"
   }
 }
